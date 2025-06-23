@@ -1,0 +1,17 @@
+name: Add SecureFlag training links to SARIF
+description: Add contextual application security training to SARIF files, providing links to secure coding exercises and explainer videos
+author: SecureFlag
+
+inputs:
+  sarif_path:
+    description: 'The SARIF file or directory of SARIF files to be augmented with SecureFlag training links'
+    required: true
+    default: '../results'
+
+runs:
+  using: node20
+  main: dist/index.js
+
+branding:
+  icon: shield
+  color: blue

@@ -1,40 +1,15 @@
 import * as core from "@actions/core";
-
 import * as fs from "fs/promises";
 import * as path from "path";
-
-async function processSarifFile(filePath, fileName) {
-  try {
-    const stats = await fs.stat(filePath);
-    const size = `${stats.size} bytes`;
-    console.log(`- ${fileName} (${size})`);
-
-    // Read the file content asynchronously
-    const fileContent = await fs.readFile(filePath, "utf8");
-
-    // Parse as JSON
-    const sarifObject = JSON.parse(fileContent);
-    console.log(`Successfully parsed ${fileName} as JSON`);
-    console.log(`SARIF version: ${sarifObject.version || "unknown"}`);
-
-    console.debug(sarifObject);
-
-    return sarifObject;
-  } catch (parseError) {
-    console.error(`Error processing ${fileName}: ${parseError.message}`);
-    return null;
-  }
-}
+import { loadSarifFile, processSarif, saveSarifFile } from "./sarif";
 
 async function run() {
-  // Get input path from GitHub Actions
   const sarifPath = core.getInput("sarif_path");
   const resultsDir = path.resolve(process.cwd(), sarifPath);
   console.log(`Reading directory: ${resultsDir}`);
 
   let files;
   try {
-    // Read directory contents asynchronously
     files = await fs.readdir(resultsDir);
   } catch (error) {
     core.setFailed(`Error reading directory: ${error.message}`);
@@ -43,7 +18,6 @@ async function run() {
 
   console.log(`SARIF files in ${sarifPath}:`);
 
-  // Filter for .sarif files
   const sarifFiles = files.filter((file) => path.extname(file) === ".sarif");
 
   if (sarifFiles.length === 0) {
@@ -52,21 +26,32 @@ async function run() {
     return;
   }
 
-  // Process all files concurrently
-  const results = await Promise.all(
-    sarifFiles.map((file) =>
-      processSarifFile(path.join(resultsDir, file), file),
-    ),
+  const processResults = await Promise.all(
+    sarifFiles.map(async (file) => {
+      const filePath = path.join(resultsDir, file);
+      const sarifObject = await loadSarifFile(filePath);
+      
+      if (!sarifObject) {
+        return false;
+      }
+      
+      const processedSarif = await processSarif(sarifObject);
+      if (!processedSarif) {
+        return false;
+      }
+      
+      // Overwrite the original file with the processed content
+      return saveSarifFile(filePath, processedSarif);
+    }),
   );
 
-  // Filter out null results (files that had errors)
-  const validResults = results.filter(Boolean);
+  // Count successful results
+  const successCount = processResults.filter(Boolean).length;
   console.log(
-    `Successfully processed ${validResults.length} of ${sarifFiles.length} SARIF files`,
+    `Successfully processed and saved ${successCount} of ${sarifFiles.length} SARIF files`,
   );
 }
 
-// Execute the async function
 run().catch((error) => {
   core.setFailed(`Unhandled error: ${error.message}`);
 });

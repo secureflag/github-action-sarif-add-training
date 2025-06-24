@@ -19828,7 +19828,6 @@ var require_sarif = __commonJS({
     async function processSarif2(sarifObject) {
       if (!sarifObject) return null;
       try {
-        console.log(`SARIF version: ${sarifObject.version || "unknown"}`);
         for (const run2 of sarifObject.runs) {
           if (run2.results) {
             const triggeredRules = /* @__PURE__ */ new Set();
@@ -19849,6 +19848,18 @@ var require_sarif = __commonJS({
                   await processRule(rule);
                 } catch (e) {
                   console.error(e);
+                }
+              }
+            }
+            if (run2.tool?.extensions) {
+              for (const extension of run2.tool.extensions) {
+                for (const rule of extension.rules) {
+                  if (!triggeredRules.has(rule.id)) continue;
+                  try {
+                    await processRule(rule);
+                  } catch (e) {
+                    console.error(e);
+                  }
                 }
               }
             }

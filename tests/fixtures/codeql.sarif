@@ -1,0 +1,128 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "CodeQL",
+          "organization": "GitHub",
+          "semanticVersion": "2.4.2",
+          "rules": [
+            {
+              "id": "java/unsafe-hostname-verification",
+              "name": "java/unsafe-hostname-verification",
+              "shortDescription": {
+                "text": "Unsafe hostname verification"
+              },
+              "fullDescription": {
+                "text": "Marking a certificate as valid for a host without checking the certificate hostname allows an attacker to perform a machine-in-the-middle attack."
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "properties": {
+                "tags": [
+                  "security",
+                  "external/cwe/cwe-297"
+                ],
+                "kind": "path-problem",
+                "precision": "high",
+                "name": "Unsafe hostname verification",
+                "description": "Marking a certificate as valid for a host without checking the certificate hostname allows an attacker to perform a machine-in-the-middle attack.",
+                "id": "java/unsafe-hostname-verification",
+                "problem.severity": "error"
+              }
+            },
+            {
+              "id": "java/maven/non-https-url",
+              "name": "java/maven/non-https-url",
+              "shortDescription": {
+                "text": "Failure to use HTTPS or SFTP URL in Maven artifact upload/download"
+              },
+              "fullDescription": {
+                "text": "Non-HTTPS connections can be intercepted by third parties."
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "properties": {
+                "tags": [
+                  "security",
+                  "external/cwe/cwe-319",
+                  "external/cwe/cwe-494",
+                  "external/cwe/cwe-829"
+                ],
+                "kind": "problem",
+                "precision": "very-high",
+                "name": "Failure to use HTTPS or SFTP URL in Maven artifact upload/download",
+                "description": "Non-HTTPS connections can be intercepted by third parties.",
+                "id": "java/maven/non-https-url",
+                "problem.severity": "error"
+              }
+            },
+            {
+              "id": "java/tainted-numeric-cast",
+              "name": "java/tainted-numeric-cast",
+              "shortDescription": {
+                "text": "User-controlled data in numeric cast"
+              },
+              "fullDescription": {
+                "text": "Casting user-controlled numeric data to a narrower type without validation can cause unexpected truncation."
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "properties": {
+                "tags": [
+                  "security",
+                  "external/cwe/cwe-197",
+                  "external/cwe/cwe-681"
+                ],
+                "kind": "path-problem",
+                "precision": "high",
+                "name": "User-controlled data in numeric cast",
+                "description": "Casting user-controlled numeric data to a narrower type without validation\n              can cause unexpected truncation.",
+                "id": "java/tainted-numeric-cast",
+                "problem.severity": "error"
+              }
+            }
+          ]
+        }
+      },
+      "artifacts": [
+        {
+          "location": {
+            "uri": "",
+            "uriBaseId": "%SRCROOT%",
+            "index": 0
+          }
+        }
+      ],
+      "results": [
+        {
+          "ruleId": "java/maven/non-https-url",
+          "ruleIndex": 9,
+          "message": {
+            "text": ""
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test/test",
+                  "uriBaseId": "%SRCROOT%",
+                  "index": 0
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "columnKind": "utf16CodeUnits",
+      "properties": {
+        "semmle.formatSpecifier": "sarif-latest"
+      }
+    }
+  ]
+}

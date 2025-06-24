@@ -5,7 +5,7 @@ module.exports = {
   loadSarifFile,
   processSarif,
   saveSarifFile,
-  processRule
+  processRule,
 };
 
 /**
@@ -16,12 +16,12 @@ module.exports = {
  */
 async function saveSarifFile(filePath, sarifObject) {
   if (!sarifObject) return false;
-  
+
   try {
     const fileName = path.basename(filePath);
     const jsonContent = JSON.stringify(sarifObject, null, 2);
-    
-    await fs.writeFile(filePath, jsonContent, 'utf8');
+
+    await fs.writeFile(filePath, jsonContent, "utf8");
     console.log(`Successfully saved updated ${fileName}`);
     return true;
   } catch (error) {
@@ -64,8 +64,6 @@ async function processSarif(sarifObject) {
   if (!sarifObject) return null;
 
   try {
-    console.log(`SARIF version: ${sarifObject.version || "unknown"}`);
-
     for (const run of sarifObject.runs) {
       if (run.results) {
         // Each result has a rule ID it is linked to.
@@ -92,6 +90,19 @@ async function processSarif(sarifObject) {
               await processRule(rule);
             } catch (e) {
               console.error(e);
+            }
+          }
+        }
+
+        if (run.tool?.extensions) {
+          for (const extension of run.tool.extensions) {
+            for (const rule of extension.rules) {
+              if (!triggeredRules.has(rule.id)) continue;
+              try {
+                await processRule(rule);
+              } catch (e) {
+                console.error(e);
+              }
             }
           }
         }
@@ -160,17 +171,17 @@ async function processRule(rule) {
         "",
     };
 
-  let text = '\n\nSecureFlag'
+  let text = "\n\nSecureFlag";
   if (rule.help.text) {
-    rule.help.text += text
+    rule.help.text += text;
   } else {
-    rule.help.text = text
+    rule.help.text = text;
   }
 
-  let markdown = '\n\n## SecureFlag'
+  let markdown = "\n\n## SecureFlag";
   if (rule.help.markdown) {
-    rule.help.markdown += markdown
+    rule.help.markdown += markdown;
   } else {
-    rule.help.markdown = markdown
+    rule.help.markdown = markdown;
   }
 }

@@ -19673,7 +19673,7 @@ var require_core = __commonJS({
       process.env["PATH"] = `${inputPath}${path2.delimiter}${process.env["PATH"]}`;
     }
     exports2.addPath = addPath;
-    function getInput(name, options) {
+    function getInput2(name, options) {
       const val = process.env[`INPUT_${name.replace(/ /g, "_").toUpperCase()}`] || "";
       if (options && options.required && !val) {
         throw new Error(`Input required and not supplied: ${name}`);
@@ -19683,9 +19683,9 @@ var require_core = __commonJS({
       }
       return val.trim();
     }
-    exports2.getInput = getInput;
+    exports2.getInput = getInput2;
     function getMultilineInput(name, options) {
-      const inputs = getInput(name, options).split("\n").filter((x) => x !== "");
+      const inputs = getInput2(name, options).split("\n").filter((x) => x !== "");
       if (options && options.trimWhitespace === false) {
         return inputs;
       }
@@ -19695,7 +19695,7 @@ var require_core = __commonJS({
     function getBooleanInput(name, options) {
       const trueValue = ["true", "True", "TRUE"];
       const falseValue = ["false", "False", "FALSE"];
-      const val = getInput(name, options);
+      const val = getInput2(name, options);
       if (trueValue.includes(val))
         return true;
       if (falseValue.includes(val))
@@ -19809,22 +19809,55 @@ Support boolean input list: \`true | True | TRUE | false | False | FALSE\``);
 
 // src/index.js
 var core = __toESM(require_core());
-var fs = __toESM(require("fs"));
+var fs = __toESM(require("fs/promises"));
 var path = __toESM(require("path"));
-try {
-  const resultsDir = path.resolve(process.cwd(), "../results");
-  console.log(`Reading directory: ${resultsDir}`);
-  const files = fs.readdirSync(resultsDir);
-  console.log("Files and folders in ../results:");
-  files.forEach((file) => {
-    const stats = fs.statSync(path.join(resultsDir, file));
-    const type = stats.isDirectory() ? "Directory" : "File";
-    const size = stats.isDirectory() ? "-" : `${stats.size} bytes`;
-    console.log(`- ${file} (${type}, ${size})`);
-  });
-} catch (error) {
-  core.setFailed(`Error reading directory: ${error.message}`);
+async function processSarifFile(filePath, fileName) {
+  try {
+    const stats = await fs.stat(filePath);
+    const size = `${stats.size} bytes`;
+    console.log(`- ${fileName} (${size})`);
+    const fileContent = await fs.readFile(filePath, "utf8");
+    const sarifObject = JSON.parse(fileContent);
+    console.log(`Successfully parsed ${fileName} as JSON`);
+    console.log(`SARIF version: ${sarifObject.version || "unknown"}`);
+    console.debug(sarifObject);
+    return sarifObject;
+  } catch (parseError) {
+    console.error(`Error processing ${fileName}: ${parseError.message}`);
+    return null;
+  }
 }
+async function run() {
+  const sarifPath = core.getInput("sarif_path");
+  const resultsDir = path.resolve(process.cwd(), sarifPath);
+  console.log(`Reading directory: ${resultsDir}`);
+  let files;
+  try {
+    files = await fs.readdir(resultsDir);
+  } catch (error) {
+    core.setFailed(`Error reading directory: ${error.message}`);
+    return;
+  }
+  console.log(`SARIF files in ${sarifPath}:`);
+  const sarifFiles = files.filter((file) => path.extname(file) === ".sarif");
+  if (sarifFiles.length === 0) {
+    console.log("No SARIF files found.");
+    core.setFailed("No SARIF files found.");
+    return;
+  }
+  const results = await Promise.all(
+    sarifFiles.map(
+      (file) => processSarifFile(path.join(resultsDir, file), file)
+    )
+  );
+  const validResults = results.filter(Boolean);
+  console.log(
+    `Successfully processed ${validResults.length} of ${sarifFiles.length} SARIF files`
+  );
+}
+run().catch((error) => {
+  core.setFailed(`Unhandled error: ${error.message}`);
+});
 /*! Bundled license information:
 
 undici/lib/fetch/body.js:

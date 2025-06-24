@@ -96,8 +96,8 @@ async function processSarif(sarifObject) {
 
         if (run.tool?.extensions) {
           for (const extension of run.tool.extensions) {
+            if (!extension.rules || !Array.isArray(extension.rules)) continue;
             for (const rule of extension.rules) {
-              if (!extension.rules || !Array.isArray(extension.rules)) continue;
               if (!triggeredRules.has(rule.id)) continue;
               try {
                 await processRule(rule);

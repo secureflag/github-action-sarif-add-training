@@ -1,5 +1,6 @@
 const fs = require("fs/promises");
 const path = require("path");
+const { searchKnowledgeBase, formatKnowledgeBaseMarkdown } = require("./knowledgebase");
 
 module.exports = {
   loadSarifFile,
@@ -129,6 +130,11 @@ function extractText(textObject) {
   return result;
 }
 
+/**
+ * Process a SARIF rule and add SecureFlag training links as help
+ * @param {object} rule - Rule object from SARIF to augment
+ * @returns {Promise<void>}
+ */
 async function processRule(rule) {
   let searchTextElements = [];
   if (rule.id) searchTextElements.push(rule.id);
@@ -159,6 +165,10 @@ async function processRule(rule) {
 
   let searchText = searchTextElements.join(" ");
 
+  let markdown = await searchKnowledgeBase(searchText);
+  if (markdown === '') return;
+  markdown = formatKnowledgeBaseMarkdown(markdown);
+
   if (!rule.help)
     rule.help = {
       // if `help` is not present but fullDescription is present
@@ -179,7 +189,6 @@ async function processRule(rule) {
     rule.help.text = text;
   }
 
-  let markdown = "\n\n## SecureFlag";
   if (rule.help.markdown) {
     rule.help.markdown += markdown;
   } else {

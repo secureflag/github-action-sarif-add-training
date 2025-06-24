@@ -8,12 +8,12 @@ test("CodeQL output", async (t) => {
   const sarif = await loadSarifFile('./tests/fixtures/codeql.sarif');
   await processSarif(sarif);
 
-  console.debug(util.inspect(sarif, {showHidden: false, depth: null, colors: true}))
-
   assert.notDeepStrictEqual(
     sarifOriginal,
     sarif,
   );
+
+  assert(sarif.runs[0].tool.driver.rules[1].help.markdown.includes("SecureFlag"))
 })
 
 test("processSarif should load test001 and not add anything", async (t) => {

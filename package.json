@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "esbuild --platform=node --target=node20 src/index.js --bundle --outfile=dist/index.js",
+    "build": "esbuild --platform=node --target=node20 src/index.js --bundle --format=esm --outfile=dist/index.js",
     "test": "node --test"
   },
   "keywords": [],

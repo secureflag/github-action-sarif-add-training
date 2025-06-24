@@ -1,6 +1,6 @@
-import { loadSarifFile, processSarif } from "../src/sarif.js";
-import { test } from "node:test";
-import assert from "node:assert";
+const { loadSarifFile, processSarif } = require("../src/sarif");
+const { test } = require("node:test");
+const assert = require("node:assert");
 
 test("ruleProcessor should load test001 and not add anything", async (t) => {
   const sarif = await loadSarifFile("./tests/fixtures/test001.sarif");

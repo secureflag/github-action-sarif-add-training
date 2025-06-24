@@ -1,7 +1,7 @@
-import * as core from "@actions/core";
-import * as fs from "fs/promises";
-import * as path from "path";
-import { loadSarifFile, processSarif, saveSarifFile } from "./sarif";
+const core = require("@actions/core");
+const fs = require("fs/promises");
+const path = require("path");
+const { loadSarifFile, processSarif, saveSarifFile } = require("./sarif");
 
 async function run() {
   const sarifPath = core.getInput("sarif_path");

@@ -1,5 +1,12 @@
-import * as fs from "fs/promises";
-import * as path from "path";
+const fs = require("fs/promises");
+const path = require("path");
+
+module.exports = {
+  loadSarifFile,
+  processSarif,
+  saveSarifFile,
+  processRule
+};
 
 /**
  * Saves a SARIF object to the specified file path
@@ -7,7 +14,7 @@ import * as path from "path";
  * @param {object} sarifObject - SARIF object to save
  * @returns {Promise<boolean>} - True if saved successfully, false if error
  */
-export async function saveSarifFile(filePath, sarifObject) {
+async function saveSarifFile(filePath, sarifObject) {
   if (!sarifObject) return false;
   
   try {
@@ -28,7 +35,7 @@ export async function saveSarifFile(filePath, sarifObject) {
  * @param {string} filePath - Path to the SARIF file
  * @returns {Promise<object|null>} - Parsed SARIF object or null if error
  */
-export async function loadSarifFile(filePath) {
+async function loadSarifFile(filePath) {
   const fileName = path.basename(filePath);
 
   try {
@@ -53,7 +60,7 @@ export async function loadSarifFile(filePath) {
  * @param {object} sarifObject - Parsed SARIF object
  * @returns {object|null} - Processed SARIF object or null if error
  */
-export async function processSarif(sarifObject) {
+async function processSarif(sarifObject) {
   if (!sarifObject) return null;
 
   try {
@@ -110,7 +117,7 @@ function extractText(textObject) {
   return result;
 }
 
-export async function processRule(rule) {
+async function processRule(rule) {
   let searchTextElements = [];
   if (rule.id) searchTextElements.push(rule.id);
   if (rule.name) searchTextElements.push(rule.name);

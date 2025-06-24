@@ -4,13 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "esbuild --platform=node --target=node20 src/index.js --bundle --format=esm --outfile=dist/index.js",
+    "build": "esbuild --platform=node --target=node20 src/index.js --bundle --outfile=dist/index.js",
     "test": "node --test"
   },
   "keywords": [],
   "author": "",
   "license": "MIT",
-  "type": "module",
   "dependencies": {
     "@actions/core": "^1.11.1",
     "@actions/github": "^6.0.1"
